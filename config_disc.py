@@ -1,4 +1,5 @@
-# Mapeo oficial del test DISC - Versión 2026.1
+# config_disc.py
+# Mapeo oficial del test DISC - Versión Desordenada y Sincronizada
 # Relación: Pregunta -> Opción Seleccionada -> Dimensión DISC resultante
 
 DISC_MAP = {
@@ -27,4 +28,3 @@ DISC_MAP = {
     23: {'A': 'C', 'B': 'S', 'C': 'I', 'D': 'D'},
     24: {'A': 'I', 'B': 'S', 'C': 'C', 'D': 'D'}
 }
-
