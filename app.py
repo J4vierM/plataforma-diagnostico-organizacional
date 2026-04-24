@@ -52,7 +52,7 @@ PREGUNTAS_DISC_DETALLADAS = [
             "A": "Usar el humor o la persuasión para suavizar la situación.",
             "B": "Enfrentarlo directamente para resolverlo rápido.",
             "C": "Analizar las causas objetivas y basarme en las reglas.",
-            "D": "Cededer o buscar un punto medio para evitar tensiones."
+            "D": "Ceder o buscar un punto medio para evitar tensiones."
         }
     },
     {
