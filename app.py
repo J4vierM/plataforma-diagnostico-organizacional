@@ -344,7 +344,9 @@ if rol == "Evaluación DISC":
 
         if not st.session_state.test_finalizado:
             
+            # CSS actualizado para ocultar el borde del st.form y mantener tus estilos intactos
             st.markdown("""<style>
+            div[data-testid="stForm"] { border: none !important; padding: 0 !important; background-color: transparent !important; }
             div[role="radiogroup"] > label > div:first-child { display: none !important; }
             div[role="radiogroup"] > label { background-color: #1e2520 !important; border: 1px solid #2d3830 !important; padding: 16px 24px !important; border-radius: 12px !important; margin-bottom: 12px !important; cursor: pointer !important; transition: all 0.2s ease !important; width: 100% !important; display: block !important; }
             div[role="radiogroup"] > label:hover { background-color: #263028 !important; border-color: #405244 !important; }
@@ -400,39 +402,53 @@ if rol == "Evaluación DISC":
             opciones_text = [f"**{k}**  |  {q_data['opciones'][k]}" for k in opciones_keys]
             current_ans_key = st.session_state.respuestas_temp.get(idx, None)
             index_default = opciones_keys.index(current_ans_key) if current_ans_key in opciones_keys else None
-            seleccion = st.radio("Selecciona tu respuesta:", opciones_text, index=index_default, label_visibility="collapsed")
             
-            st.write("---")
-            col_btn1, col_btn2, col_btn3 = st.columns([1,2,1])
-            
-            with col_btn1:
-                if idx > 0:
-                    if st.button("Anterior", use_container_width=True):
-                        if seleccion:
-                            st.session_state.respuestas_temp[idx] = seleccion.replace("*", "").strip()[0]
-                        st.session_state.current_q -= 1
-                        st.rerun()
+            # --- FORMULARIO PARA EVITAR LA RECARGA ---
+            with st.form(key=f"form_pregunta_{idx}"):
+                seleccion = st.radio("Selecciona tu respuesta:", opciones_text, index=index_default, label_visibility="collapsed")
+                
+                st.write("---")
+                col_btn1, col_btn2, col_btn3 = st.columns([1,2,1])
+                
+                with col_btn1:
+                    if idx > 0:
+                        btn_prev = st.form_submit_button("Anterior", use_container_width=True)
+                    else:
+                        btn_prev = False
                         
-            with col_btn3:
-                if idx < 23:
-                    if st.button("Siguiente", use_container_width=True):
-                        if seleccion:
-                            st.session_state.respuestas_temp[idx] = seleccion.replace("*", "").strip()[0]
-                            st.session_state.current_q += 1
+                with col_btn3:
+                    if idx < 23:
+                        btn_next = st.form_submit_button("Siguiente", use_container_width=True)
+                        btn_finish = False
+                    else:
+                        btn_next = False
+                        btn_finish = st.form_submit_button("Finalizar Encuesta", use_container_width=True, type="primary")
+
+                # --- LÓGICA DE NAVEGACIÓN ---
+                if btn_prev:
+                    if seleccion:
+                        st.session_state.respuestas_temp[idx] = seleccion.replace("*", "").strip()[0]
+                    st.session_state.current_q -= 1
+                    st.rerun()
+                    
+                if btn_next:
+                    if seleccion:
+                        st.session_state.respuestas_temp[idx] = seleccion.replace("*", "").strip()[0]
+                        st.session_state.current_q += 1
+                        st.rerun()
+                    else:
+                        st.error("Selecciona una opción para avanzar.")
+                        
+                if btn_finish:
+                    if seleccion:
+                        st.session_state.respuestas_temp[idx] = seleccion.replace("*", "").strip()[0]
+                        if len(st.session_state.respuestas_temp) < 24:
+                            st.error("Por favor, asegúrate de responder todas las preguntas.")
+                        else:
+                            st.session_state.test_finalizado = True
                             st.rerun()
-                        else:
-                            st.error("Selecciona una opción para avanzar.")
-                else:
-                    if st.button("Finalizar Encuesta", use_container_width=True, type="primary"):
-                        if seleccion:
-                            st.session_state.respuestas_temp[idx] = seleccion.replace("*", "").strip()[0]
-                            if len(st.session_state.respuestas_temp) < 24:
-                                st.error("Por favor, asegúrate de responder todas las preguntas.")
-                            else:
-                                st.session_state.test_finalizado = True
-                                st.rerun()
-                        else:
-                            st.error("Selecciona una opción para finalizar.")
+                    else:
+                        st.error("Selecciona una opción para finalizar.")
 
         else:
             from database import obtener_o_crear_usuario, obtener_o_crear_empresa, guardar_envio
